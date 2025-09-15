@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Terminal MVP</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
+    body { margin: 0; background:#0b1320; color:#e8eefc; display:flex; min-height:100vh; align-items:center; justify-content:center; }
+    .card { background:#131c2b; border:1px solid #1e2a41; padding:24px; border-radius:16px; width: min(720px, 94vw); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    h1 { font-size: 1.3rem; margin: 0 0 12px; }
+    p { margin: 8px 0; line-height: 1.4; color:#c6d2ee; }
+    .controls { display:flex; gap:12px; align-items:center; margin-top:16px; flex-wrap: wrap; }
+    button { font-size:1.05rem; padding:12px 18px; border-radius:12px; border:0; cursor:pointer; background:#2b8aef; color:white; }
+    button.secondary { background:#273249; color:#d7e3ff; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    .status { margin-top:12px; font-variant-numeric: tabular-nums; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:#1f2a42; color:#aecdff; border:1px solid #2b3d61; font-size:.9rem; }
+    audio { width:100%; margin-top:10px; }
+    .hint { font-size:.9rem; color:#9ab0d9; }
+    .row { display:flex; gap:12px; align-items:center; justify-content:space-between; }
+    .grow { flex:1; }
+    pre { background:#0e1626; border:1px solid #1e2a41; padding:12px; border-radius:12px; overflow:auto; }
+    .grid { display:grid; gap:12px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎙️ Voice Terminal – Aufnahme → ASR → NLU → JSON</h1>
+    <p>1) <strong>Aufnehmen</strong>-Button klicken um Aufzeichnung zu starten</p>
+    <p>2) automatische Beendigung nach 5 Sekunden (oder erneut klicken)</p>
+    <p>3) <strong>Senden</strong> startet ASR &amp; NLU und erzeugt das JSON.</p>
+
+<div style="display:grid;
+            grid-template-columns: auto auto 1fr auto;
+            gap:0.5rem;
+            align-items:center;">
+
+  <button id="recordBtn">Aufnehmen</button>
+  <button id="sendBtn" disabled>Senden</button>
+
+  <audio id="player" controls preload="none"
+         style="width:100%; min-width:140px;"></audio>
+
+  <button id="deleteBtn">Zurücksetzen</button>
+</div>
+
+
+
+    <div class="status" id="statusText">Keine aktive Aufnahme.</div>
+
+    <div class="grid">
+      <div>
+        <br>
+        <strong>Ergebnis:</strong>
+        <pre id="resultBox" aria-live="polite" aria-atomic="true">–</pre>
+      </div>
+    </div>
+
+    <p class="hint">Tipp: Chrome/Edge empfohlen. Aufnahme max. 5 Sekunden; „Senden“ startet die Auswertung.</p>
+  </div>
+
+<script>
+(() => {
+  const recordBtn = document.getElementById('recordBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const statusText = document.getElementById('statusText');
+  const stateBadge = document.getElementById('stateBadge');
+  const player = document.getElementById('player');
+  const resultBox = document.getElementById('resultBox');
+
+  let mediaRecorder = null;
+  let chunks = [];
+  let isRecording = false;
+  let timeoutId = null;
+  let stream = null;
+  let hasRecording = false;
+
+  function setUIRecording(active) {
+    isRecording = active;
+    recordBtn.textContent = active ? 'Stop' : 'Aufnehmen';
+    stateBadge.textContent = active ? 'Aufnahme läuft…' : 'Bereit';
+  }
+
+  function setStatus(msg) { statusText.textContent = msg; }
+
+  function showPlayer(srcUrl) {
+    player.style.display = 'block';
+    player.src = srcUrl;
+  }
+
+  async function ensureStream() {
+    if (stream) return stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+      return stream;
+    } catch (err) {
+      console.error(err);
+      setStatus('❌ Mikrofonzugriff verweigert oder nicht verfügbar.');
+      throw err;
+    }
+  }
+
+  async function startRecording() {
+    await ensureStream();
+    chunks = [];
+    try {
+      mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    } catch (e) { mediaRecorder = new MediaRecorder(stream); }
+
+    mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      try {
+        recordBtn.disabled = true;
+        const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        chunks = [];
+        const form = new FormData();
+        form.append('file', blob, 'aufnahme.webm');
+        setStatus('⏫ Lade hoch …');
+        const res = await fetch('/upload-audio', { method: 'POST', body: form });
+        if (!res.ok) throw new Error('Upload fehlgeschlagen: ' + res.status);
+        const data = await res.json();
+        setStatus('✅ Gespeichert. Neue Aufnahme ersetzt ggf. die alte.');
+        if (data && data.url) {
+          showPlayer(data.url);
+          hasRecording = true;
+          sendBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus('❌ Fehler beim Speichern.');
+      } finally {
+        recordBtn.disabled = false;
+        setUIRecording(false);
+      }
+    };
+
+    mediaRecorder.start();
+    setUIRecording(true);
+    setStatus('🎧 Aufnahme gestartet. Max. 5 Sekunden …');
+    timeoutId = setTimeout(() => stopRecording(), 5000);
+  }
+
+  function stopRecording() {
+    if (!isRecording || !mediaRecorder) return;
+    if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+    setStatus('⏹️ Stoppe …');
+    mediaRecorder.stop();
+  }
+
+  recordBtn.addEventListener('click', async () => {
+    if (!isRecording) { await startRecording(); } else { stopRecording(); }
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    player.removeAttribute('src');
+    player.style.display = 'none';
+    resultBox.textContent = '–';
+    hasRecording = false;
+    sendBtn.disabled = true;
+    setStatus('Lokaler Player zurückgesetzt. Du kannst neu aufnehmen – die alte Serverdatei wird beim nächsten Upload überschrieben.');
+  });
+
+  sendBtn.addEventListener('click', async () => {
+    if (!hasRecording) return;
+    sendBtn.disabled = true;
+    setStatus('🧠 Verarbeite (ASR + NLU) …');
+    resultBox.textContent = '…';
+    try {
+      const res = await fetch('/process', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.detail || 'Fehler');
+      resultBox.textContent = JSON.stringify(data, null, 2);
+      setStatus('✅ Verarbeitung abgeschlossen.');
+    } catch (e) {
+      console.error(e);
+      setStatus('❌ Verarbeitung fehlgeschlagen.');
+      resultBox.textContent = (e && e.message) ? e.message : 'Fehler';
+    } finally {
+      sendBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
