@@ -5,15 +5,13 @@ In diesem Projekt entwickeln Sie ein **sprachgesteuertes Terminal**, mit dem Pro
 
 Das Projekt ist für **3 Studenten** ausgelegt und läuft über ein Semester. Die Arbeit ist in 3 große Arbeitspakete gegliedert, die eng aufeinander aufbauen. 
 
----
-
 ## Use Case  
 An einer Produktionsanlage sollen künftig die produzierten Teile nicht mehr manuell in ein Terminal eingegeben, sondern per **Sprache** erfasst werden:
 
-1. Ein Webinterface im Browser zeigt einen **Record-Button** (rotes Kreissymbol) an.  
+1. Ein Webinterface im Browser zeigt einen **Record-Button** an.  
    - Klick: Aufnahme startet.  
    - Beispiel-Eingabe: „Teil 4711, produziert: 5, Ausschuss: 2“.  
-   - Klick auf Stop (Quadratsymbol): Aufnahme wird beendet.  
+   - Klick auf Stop: Aufnahme wird beendet.  
 
 2. Mit Klick auf „Absenden“ wird die Audioaufnahme an einen Server übertragen.  
 
@@ -26,8 +24,6 @@ An einer Produktionsanlage sollen künftig die produzierten Teile nicht mehr man
    - Falls fehlerhaft → Fehlercode an den Browser.  
 
 5. Das JSON wird im Browser ausgewertet und in **SAP** gebucht.  
-
----
 
 ## Arbeitspakete  
 
@@ -71,8 +67,6 @@ Jede Gruppe soll eine **Hosting-Strategie** auswählen und begründen (Kosten, E
 - JSON  
 - Docker
 
----
-
 ### 3. Auswertung und Eintrag in SAP  
 - Empfang des JSON am Browser-Terminal  
 - Interpretation der Daten (z. B. Visualisierung: „Teil 4711, produziert 5, Ausschuss 2“)  
@@ -82,8 +76,6 @@ Jede Gruppe soll eine **Hosting-Strategie** auswählen und begründen (Kosten, E
 - **TODO**: Abklären wie JSON-Daten an SAP weitergereicht werden
 - Docker
 
----
-
 ## Lernziele  
 Am Ende des Projekts haben Sie:  
 - Ein grundlegendes Verständnis von **Webentwicklung** (Frontend + Backend)  
@@ -92,8 +84,6 @@ Am Ende des Projekts haben Sie:
 - Einen Überblick über Integrationsmöglichkeiten in **SAP**  
 - Ihre Lösung dokumentiert und Alternativen diskutiert (z. B. verschiedene Speech-to-Text-Engines, Server-Frameworks, Datenbanken, Schnittstellen)  
 
----
-
 ## Hinweise zur Umsetzung  
 - Jeder Student übernimmt die Verantwortung für **ein Arbeitspaket** – gleichzeitig ist eine enge Abstimmung erforderlich, da die Pakete aufeinander aufbauen.  
 - Dokumentieren Sie:  
@@ -101,29 +91,20 @@ Am Ende des Projekts haben Sie:
   - welche Schwierigkeiten es gab,    
   - warum Sie sich für eine konkrete Lösung entschieden haben.  
 
----
-
 ## Erwartetes Ergebnis  
 - Funktionierendes Web-Frontend zur Audioaufnahme  
 - Backend-Server, der Audio → Text → JSON umsetzt  
 - JSON-Auswertung im Terminal und Übergabe an SAP  
 - Projektdokumentation (siehe Dokument "Hinweise zur Durchführung des mechatronischen Projekts" von Prof. Roßdeutscher)  
 
----
-
 ## Benötigtes Vorwissen
 
 Um die Aufgabe in der vorgegebenen Zeit gut lösen zu können werden Grundkenntnisse in Python und FastAPI dringend empfohlen. Die Vorlesung [DEB3_Technische_Informatik](https://moodle.hs-esslingen.de/moodle/course/view.php?id=33208) von Prof. Baumgartl behandelt genau diese Themen.
-
----
 
 ## Literatur
 
 - **TODO**: Relevante Literatur zum Einstieg hinzufügen
 
----
-
 ## Ansprechpartner
 
-Marco Dittmann  
-marco.dittmann@hs-esslingen.de
+Marco Dittmann (marco.dittmann@hs-esslingen.de)
