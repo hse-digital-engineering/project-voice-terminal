@@ -8,12 +8,13 @@ Das Projekt ist für **3 Studenten** ausgelegt und läuft über ein Semester. Di
 ## Use Case  
 An einer Produktionsanlage sollen künftig die produzierten Teile nicht mehr manuell in ein Terminal eingegeben, sondern per **Sprache** erfasst werden:
 
-1. Ein Webinterface im Browser zeigt einen **Record-Button** an.  
-   - Klick: Aufnahme startet.  
-   - Beispiel-Eingabe: „Teil 4711, produziert: 5, Ausschuss: 2“.  
-   - Klick auf Stop: Aufnahme wird beendet.  
+1. Ein Webinterface im Browser steht im Terminal der Produktionsanlage bereit.  
+   - Mikrofon lauscht und wartet auf Sprache
+   - Sprache wird automatisch erkannt und eine Aufzeichnung wird gestartet   
+   - Beispiel-Audio: „Teil 4711, produziert: 5, Ausschuss: 2“.  
+   - Ende der Sprache wird automatisch erkannt 
 
-2. Mit Klick auf „Absenden“ wird die Audioaufnahme an einen Server übertragen.  
+2. Über ein Signalwort wird die Audioaufnahme an einen Server übertragen.  
 
 3. Der Server verarbeitet die Aufnahme in zwei Schritten:  
    - **Automatic Speech Recognition (ASR)**: Umwandeln von Sprache in Text, z. B. mit **Whisper** oder anderen Speech-to-Text-Modellen.  
@@ -48,17 +49,6 @@ An einer Produktionsanlage sollen künftig die produzierten Teile nicht mehr man
 - Entwicklung eines einfachen **NLU-Moduls**, das den Text analysiert (Teilenummer, Mengen, Ausschuss).  
 - Rückgabe der Ergebnisse als JSON  
 
-**Hinweis zum Hosting:**  
-Das Backend muss auf einem Server laufen, damit das Frontend (Browser) darauf zugreifen kann.  
-Mögliche Optionen, die zu evaluieren und zu dokumentieren sind:  
-- **Hugging Face Spaces** (kostenlos, einfaches Hosting für ML-Modelle)  
-- **Cloud-Provider** (z. B. AWS, Azure, GCP)  
-- **Hochschulrechner** (lokales Deployment mit Zugriff aus dem Uni-Netzwerk)  
-
-
-Jede Gruppe soll eine **Hosting-Strategie** auswählen und begründen (Kosten, Einfachheit, Performance).
-**TODO**: @Mario: Diese Aufgabe den Studenten überlassen oder Komplexität rausnehmen und Hosting-Lösung vorgeben?
-
 **Technologien zum Recherchieren:**  
 - Python  
 - FastAPI, uvicorn  
@@ -70,10 +60,10 @@ Jede Gruppe soll eine **Hosting-Strategie** auswählen und begründen (Kosten, E
 ### 3. Auswertung und Eintrag in SAP  
 - Empfang des JSON am Browser-Terminal  
 - Interpretation der Daten (z. B. Visualisierung: „Teil 4711, produziert 5, Ausschuss 2“)  
-- Weiterleitung der Daten an SAP (**TODO:** womit? TBD)  
+- Weiterleitung der Daten an SAP mit Selenium  
 
 **Technologien zum Recherchieren:**  
-- **TODO**: Abklären wie JSON-Daten an SAP weitergereicht werden
+- Selenium
 - Docker
 
 ## Lernziele  
@@ -100,10 +90,6 @@ Am Ende des Projekts haben Sie:
 ## Benötigtes Vorwissen
 
 Um die Aufgabe in der vorgegebenen Zeit gut lösen zu können werden Grundkenntnisse in Python und FastAPI dringend empfohlen. Die Vorlesung [DEB3_Technische_Informatik](https://moodle.hs-esslingen.de/moodle/course/view.php?id=33208) von Prof. Baumgartl behandelt genau diese Themen.
-
-## Literatur
-
-- **TODO**: Relevante Literatur zum Einstieg hinzufügen
 
 ## Ansprechpartner
 
