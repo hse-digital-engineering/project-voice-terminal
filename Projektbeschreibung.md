@@ -60,7 +60,7 @@ An einer Produktionsanlage sollen künftig die produzierten Teile nicht mehr man
 ### 3. Auswertung und Eintrag in SAP  
 - Empfang des JSON am Browser-Terminal  
 - Interpretation der Daten (z. B. Visualisierung: „Teil 4711, produziert 5, Ausschuss 2“)  
-- Weiterleitung der Daten an SAP mit Selenium  
+- Weiterleitung der Daten an SAP mit [Selenium](https://en.wikipedia.org/wiki/Selenium_(software))  
 
 **Technologien zum Recherchieren:**  
 - Selenium
